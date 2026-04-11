@@ -1,0 +1,10 @@
+#ifndef NETWORKREACHABILITYANALYSIS_TYPES_H
+#define NETWORKREACHABILITYANALYSIS_TYPES_H
+
+enum class NodeType {
+    Provider,
+    Router,
+    Host
+};
+
+#endif //NETWORKREACHABILITYANALYSIS_TYPES_H

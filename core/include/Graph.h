@@ -1,0 +1,16 @@
+//
+// Created by andja on 11. 4. 2026..
+//
+
+#ifndef NETWORKREACHABILITYANALYSIS_GRAPH_H
+#define NETWORKREACHABILITYANALYSIS_GRAPH_H
+
+
+
+class Graph {
+
+};
+
+
+
+#endif //NETWORKREACHABILITYANALYSIS_GRAPH_H
