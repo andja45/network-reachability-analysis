@@ -1,16 +1,13 @@
-//
-// Created by andja on 11. 4. 2026..
-//
-
 #ifndef NETWORKREACHABILITYANALYSIS_NODE_H
 #define NETWORKREACHABILITYANALYSIS_NODE_H
 
+#include <string>
+#include "NodeType.h"
 
-
-class Node {
-
+struct Node {
+    int id;
+    std::string label;
+    NodeType type;
 };
-
-
 
 #endif //NETWORKREACHABILITYANALYSIS_NODE_H

@@ -1,16 +1,9 @@
-//
-// Created by andja on 11. 4. 2026..
-//
-
 #ifndef NETWORKREACHABILITYANALYSIS_EDGE_H
 #define NETWORKREACHABILITYANALYSIS_EDGE_H
 
-
-
-class Edge {
-
+struct Edge {
+    int from;
+    int to;
 };
-
-
 
 #endif //NETWORKREACHABILITYANALYSIS_EDGE_H
