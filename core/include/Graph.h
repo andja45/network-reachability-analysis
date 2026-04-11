@@ -23,7 +23,7 @@ public:
     const Node& getNode(int id)   const;
     const std::vector<int>&  neighbors(int id) const;
     const std::unordered_map<int, Node>& nodes() const;
-    const std::vector<Edge>& edges() const; // all edges, no duplicates
+    const std::vector<Edge>& edges() const;
     std::vector<int> getNodesByType(NodeType type) const;
 };
 
