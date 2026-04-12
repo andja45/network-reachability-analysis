@@ -1,7 +1,7 @@
 #include "GraphExamples.h"
 
-// Two providers feeding into a redundant core ring (R1-R2), with bridge chains
-// reaching out to hosts. Core is resilient -- branches are vulnerable.
+// Two providers each connected to a core router. If one providergoes down, the other
+// still covers the whole network.
 // Tests: BFS multi-source, redundant core, bridge chains, underserved hosts, isolated node.
 //
 //   ProvA   ProvB
@@ -31,7 +31,7 @@ Graph makeOfficeNetwork() {
 
     g.addEdge(provA, r1);
     g.addEdge(provB, r2);
-    g.addEdge(r1,    r2); // core cross-link -- makes R1-R2 resilient
+    g.addEdge(r1,    r2);
     g.addEdge(r1,    r3);
     g.addEdge(r2,    r4);
     g.addEdge(r3,    r5);
