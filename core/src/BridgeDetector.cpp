@@ -32,7 +32,7 @@ BridgeResult findBridges(const Graph& graph) {
 
     for (const auto& [id, node] : graph.nodes())
         dfsNum[id] = 0;
-
+    
     for (const auto& [id, node] : graph.nodes())
         if (dfsNum[id] == 0)
             dfs(id, -1, graph, dfsNum, lowLink, num, result.bridges, result.dfsOrder);

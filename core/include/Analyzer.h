@@ -14,7 +14,7 @@ struct BridgeImpact {
 
 struct AnalysisResult {
     BFSResult bfs;
-    BridgeResult bridges;
+    BridgeResult bridgeResult;
     std::vector<BridgeImpact> bridgeImpacts;
     std::unordered_map<Edge, EdgeCriticality> edgeCriticality;
     std::vector<int> unreachableHosts;

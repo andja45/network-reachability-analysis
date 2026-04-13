@@ -17,10 +17,10 @@ AnalysisResult analyze(const Graph& graph, int maxHops) {
         }
     }
 
-    result.bridges = findBridges(graph);
+    result.bridgeResult = findBridges(graph);
 
     // for each bridge, simulate its removal and record which hosts lose connectivity
-    for (const Edge& bridge : result.bridges.bridges) {
+    for (const Edge& bridge : result.bridgeResult.bridges) {
         BridgeImpact impact;
         impact.bridge = bridge;
 
