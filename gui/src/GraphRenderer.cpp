@@ -118,6 +118,13 @@ void GraphRenderer::clear(const AppState& state) {
 void GraphRenderer::buildBFSAnimation(const AppState& state) {
     m_animationSteps.clear();
     resetColors(state);
+
+    m_providerColors.clear();
+    int colorIdx = 0;
+    for (const auto& [id, node] : state.graph.nodes())
+        if (node.type == NodeType::Provider)
+            m_providerColors[id] = PROVIDER_PALETTE[colorIdx++ % PALETTE_SIZE];
+
     const auto& bfs = state.result.bfs;
 
     // level 0: light up each provider in its color
@@ -149,7 +156,7 @@ void GraphRenderer::buildBridgeAnimation(const AppState& state) {
     m_animationSteps.clear();
     resetColors(state);
 
-    for (const Edge& e : state.result.bridges.dfsOrder)
+    for (const Edge& e : state.result.bridgeResult.dfsOrder)
         m_animationSteps.push_back({{ {-1, e, COL_DFS_FLASH, 2.0f} }});
 
     std::vector<ColorChange> finalStep;
@@ -164,16 +171,14 @@ void GraphRenderer::buildBridgeAnimation(const AppState& state) {
     if (!finalStep.empty()) m_animationSteps.push_back(finalStep);
 }
 
-void GraphRenderer::step(AppState& state) {
-    if (state.animationStep >= (int)m_animationSteps.size()) return;
+bool GraphRenderer::step(AppState& state) {
+    if (state.animationStep >= (int)m_animationSteps.size()) return false;
 
     for (const ColorChange& c : m_animationSteps[state.animationStep]) {
         if (c.nodeId != -1) {
-            // node change
             for (auto& n : m_nodes)
                 if (n.id == c.nodeId) { n.color = c.color; break; }
         } else {
-            // edge change
             for (auto& e : m_edges)
                 if (e.edge.from == c.edge.from && e.edge.to == c.edge.to) {
                     e.color = c.color;
@@ -183,6 +188,16 @@ void GraphRenderer::step(AppState& state) {
         }
     }
     ++state.animationStep;
+    return state.animationStep < (int)m_animationSteps.size();
+}
+
+void GraphRenderer::moveNode(int id, ImVec2 delta) {
+    for (auto& n : m_nodes)
+        if (n.id == id) { n.pos.x += delta.x; n.pos.y += delta.y; return; }
+}
+
+ImVec2 GraphRenderer::nodePosition(int id) const {
+    return nodePos(m_nodes, id);
 }
 
 int GraphRenderer::nodeAt(ImVec2 p) const {

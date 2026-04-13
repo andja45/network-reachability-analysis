@@ -41,16 +41,18 @@ public:
     void draw(ImDrawList* drawList, ImVec2 canvasOrigin, ImVec2 canvasSize, const AppState& state);
     void buildBFSAnimation(const AppState& state);
     void buildBridgeAnimation(const AppState& state);
-    void step(AppState& state);
+    bool step(AppState& state); // returns false when the last step was just applied
     void clear(const AppState& state);
 
     void addNode(int id, ImVec2 pos);
     void addEdge(const Edge& e);
     void removeNode(int id);
     void removeEdge(const Edge& e);
+    void moveNode(int id, ImVec2 delta);
 
-    int nodeAt(ImVec2 p) const;
-    Edge edgeAt(ImVec2 p) const;
+    int    nodeAt(ImVec2 p) const;
+    Edge   edgeAt(ImVec2 p) const;
+    ImVec2 nodePosition(int id) const; // for animation when creating an edge
 };
 
 #endif
