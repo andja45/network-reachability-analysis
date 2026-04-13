@@ -1,10 +1,12 @@
 #ifndef NETWORKREACHABILITYANALYSIS_ANALYZER_H
 #define NETWORKREACHABILITYANALYSIS_ANALYZER_H
 
+#include <unordered_map>
 #include "BFS.h"
-#include "Edge.h"
+#include "BridgeDetector.h"
 
-// Represents the impact of removing a bridge edge
+enum class EdgeCriticality { Critical, SemiCritical, Redundant };
+
 struct BridgeImpact {
     Edge bridge;
     std::vector<int> disconnectedHosts;
@@ -12,7 +14,9 @@ struct BridgeImpact {
 
 struct AnalysisResult {
     BFSResult bfs;
+    BridgeResult bridges;
     std::vector<BridgeImpact> bridgeImpacts;
+    std::unordered_map<Edge, EdgeCriticality> edgeCriticality;
     std::vector<int> unreachableHosts;
     std::vector<int> underservedHosts; // distance > maxHops
     int totalHosts = 0;
