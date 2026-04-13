@@ -2,6 +2,8 @@
 
 An interactive tool for building and analyzing computer networks. It visualizes multi-source BFS reachability from providers and extends Tarjan's bridge detection with a custom three-way edge criticality classification — identifying which connections are critical, but also which ones are  keeping the network from becoming more fragile.
 
+![network.png](assets/network.png)
+
 The project is split into two components:
 - **GUI application** — interactive graph editor with step-by-step BFS and bridge animations
 - **CLI demo** — runs the full analysis pipeline on built-in example networks with a formatted report
