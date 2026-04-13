@@ -21,10 +21,15 @@ BFSResult runBFS(const Graph& graph) {
     while (!q.empty()) {
         int current = q.front();
         q.pop();
+        int level = result.distance[current];
+
+        if ((int)result.bfsLevels.size() <= level)
+            result.bfsLevels.resize(level + 1);
+        result.bfsLevels[level].push_back(current);
 
         for (int neighbor : graph.neighbors(current)) {
             if (result.distance[neighbor] == -1) { // unvisited
-                result.distance[neighbor] = result.distance[current] + 1; 
+                result.distance[neighbor] = level + 1;
                 result.nearestProvider[neighbor] = result.nearestProvider[current];
                 result.parent[neighbor] = current;
                 q.push(neighbor);

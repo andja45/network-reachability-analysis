@@ -4,38 +4,38 @@
 
 // Tarjan's algorithm for finding bridges in an undirected graph
 static void dfs(int u, int parent, const Graph& graph, std::unordered_map<int, int>& dfsNum,
-                std::unordered_map<int, int>& lowlink, int& num, std::vector<Edge>& bridges) {
+                std::unordered_map<int, int>& lowlink, int& num,
+                std::vector<Edge>& bridges, std::vector<Edge>& dfsOrder) {
 
-    dfsNum[u] = lowlink[u] = ++num; // discovery time
+    dfsNum[u] = lowlink[u] = ++num;
 
     for (int v : graph.neighbors(u)) {
         if (dfsNum[v] == 0) { // unvisited
-            dfs(v, u, graph, dfsNum, lowlink, num, bridges);
+            dfsOrder.push_back({u, v});
+            dfs(v, u, graph, dfsNum, lowlink, num, bridges, dfsOrder);
 
             lowlink[u] = std::min(lowlink[u], lowlink[v]);
 
-            if (lowlink[v] > dfsNum[u]) // v cannot reach nodes before u, so (u,v) is a bridge
+            if (lowlink[v] > dfsNum[u])
                 bridges.push_back({std::min(u, v), std::max(u, v)});
-        } else if (v != parent) { // visited but not the parent, update lowlink
+        } else if (v != parent) {
             lowlink[u] = std::min(lowlink[u], dfsNum[v]);
         }
     }
 }
 
-std::vector<Edge> findBridges(const Graph& graph) {
+BridgeResult findBridges(const Graph& graph) {
     std::unordered_map<int, int> dfsNum;
     std::unordered_map<int, int> lowLink;
-    std::vector<Edge> bridges;
+    BridgeResult result;
     int num = 0;
 
-    for (const auto& [id, node] : graph.nodes()) {
+    for (const auto& [id, node] : graph.nodes())
         dfsNum[id] = 0;
-    }
 
-    for (const auto& [id, node] : graph.nodes()) {
-        if (dfsNum[id] == 0) // run dfs from every unvisited node
-            dfs(id, -1, graph, dfsNum, lowLink, num, bridges);
-    }
+    for (const auto& [id, node] : graph.nodes())
+        if (dfsNum[id] == 0)
+            dfs(id, -1, graph, dfsNum, lowLink, num, result.bridges, result.dfsOrder);
 
-    return bridges;
+    return result;
 }

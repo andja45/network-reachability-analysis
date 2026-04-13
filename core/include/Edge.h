@@ -6,6 +6,7 @@
 struct Edge {
     int from;
     int to;
+    bool operator ==(const Edge& o) const { return from == o.from && to == o.to; }
 };
 
 template<>

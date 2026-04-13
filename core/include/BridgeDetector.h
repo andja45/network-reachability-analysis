@@ -5,6 +5,11 @@
 #include "Graph.h"
 #include "Edge.h"
 
-std::vector<Edge> findBridges(const Graph& graph);
+struct BridgeResult {
+    std::vector<Edge> bridges;
+    std::vector<Edge> dfsOrder;
+};
+
+BridgeResult findBridges(const Graph& graph);
 
 #endif
