@@ -2,57 +2,78 @@
 #include "Analyzer.h"
 #include <iostream>
 
-static std::string nodeStr(const Graph& graph, int id) {
-    return graph.getNode(id).label + "(" + std::to_string(id) + ")";
+static std::string label(const Graph& g, int id) {
+    return g.getNode(id).label;
 }
 
-static void printReport(const std::string& name, const Graph& graph, const AnalysisResult& result) {
-    std::cout << "\n" << name << "\n";
-
-    std::cout << "Hosts: "
-              << result.totalHosts << " total | "
-              << result.reachableHosts << " reachable | "
-              << (result.totalHosts - result.reachableHosts) << " unreachable\n";
-
-    std::cout << "Unreachable: [";
-    for (size_t i = 0; i < result.unreachableHosts.size(); i++) {
-        if (i > 0) std::cout << ", ";
-        std::cout << nodeStr(graph, result.unreachableHosts[i]);
+static void printEdgeList(const Graph& g, const std::vector<Edge>& edges) {
+    std::cout << "[";
+    for (size_t i = 0; i < edges.size(); i++) {
+        if (i) std::cout << ", ";
+        std::cout << label(g, edges[i].from) << "--" << label(g, edges[i].to);
     }
-    std::cout << "]\n";
+    std::cout << "]";
+}
 
-    std::cout << "Underserved: [";
-    for (size_t i = 0; i < result.underservedHosts.size(); i++) {
-        if (i > 0) std::cout << ", ";
-        std::cout << nodeStr(graph, result.underservedHosts[i]);
+static void printReport(const std::string& name, const Graph& graph, int maxHops) {
+    AnalysisResult r = analyze(graph, maxHops);
+
+    std::cout << "\n***" << name << ": ***" << "\n";
+
+    int nProv = 0, nRouter = 0, nHost = 0;
+    for (const auto& [id, node] : graph.nodes()) {
+        if (node.type == NodeType::Provider) ++nProv;
+        else if (node.type == NodeType::Router) ++nRouter;
+        else ++nHost;
     }
-    std::cout << "]\n";
+    std::cout << "  Nodes: " << nProv << " providers, " << nRouter << " routers, " << nHost << " hosts\n";
+    std::cout << "  Edges: " << graph.edges().size() << "\n";
 
-    std::cout << "Bridges: " << result.bridgeImpacts.size() << "\n";
-    for (const BridgeImpact& impact : result.bridgeImpacts) {
-        std::cout << "  " << nodeStr(graph, impact.bridge.from)
-                  << " -- "
-                  << nodeStr(graph, impact.bridge.to)
-                  << "  =>  disconnects: [";
+    std::string hopStr = (maxHops != -1) ? " (max " + std::to_string(maxHops) + " hops)" : "";
+    std::cout << "\n  Reachability" << hopStr << "\n";
+    std::cout << "    Reachable:   " << r.reachableHosts << " / " << r.totalHosts << "\n";
 
-        for (size_t i = 0; i < impact.disconnectedHosts.size(); i++) {
-            if (i > 0) std::cout << ", ";
-            std::cout << nodeStr(graph, impact.disconnectedHosts[i]);
+    std::cout << "    Unreachable: " << r.unreachableHosts.size();
+    if (!r.unreachableHosts.empty()) {
+        std::cout << "  [";
+        for (size_t i = 0; i < r.unreachableHosts.size(); i++) {
+            if (i) std::cout << ", ";
+            std::cout << label(graph, r.unreachableHosts[i]);
         }
-        std::cout << "]\n";
+        std::cout << "]";
     }
+    std::cout << "\n";
+
+    if (maxHops != -1) {
+        std::cout << "    Underserved: " << r.underservedHosts.size();
+        if (!r.underservedHosts.empty()) {
+            std::cout << "  [";
+            for (size_t i = 0; i < r.underservedHosts.size(); i++) {
+                if (i) std::cout << ", ";
+                std::cout << label(graph, r.underservedHosts[i]);
+            }
+            std::cout << "]";
+        }
+        std::cout << "\n";
+    }
+
+    std::vector<Edge> crits, semis, redundants;
+    for (const auto& [e, c] : r.edgeCriticality) {
+        if (c == EdgeCriticality::Critical)     crits.push_back(e);
+        else if (c == EdgeCriticality::SemiCritical) semis.push_back(e);
+        else redundants.push_back(e);
+    }
+
+    std::cout << "\n  Connection Criticality\n";
+    std::cout << "    Critical:    " << crits.size() << "  "; printEdgeList(graph, crits); std::cout << "\n";
+    std::cout << "    Semi-crit:   " << semis.size() << "  "; printEdgeList(graph, semis); std::cout << "\n";
+    std::cout << "    Redundant:   " << redundants.size() << "  "; printEdgeList(graph, redundants); std::cout << "\n";
 }
 
 int main() {
     const int maxHops = 3;
-
-    Graph office = makeOfficeNetwork();
-    Graph redundant = makeRedundantNetwork();
-    Graph linear = makeLinearNetwork();
-
-    printReport("Office Network", office, analyze(office, maxHops));
-    printReport("Redundant Network", redundant, analyze(redundant, maxHops));
-    printReport("Linear Network", linear, analyze(linear, maxHops));
-
-    return 0;
+    printReport("Office Network",makeOfficeNetwork(), maxHops);
+    printReport("Redundant Network",makeRedundantNetwork(), maxHops);
+    printReport("Linear Network",makeLinearNetwork(), maxHops);
+    std::cout << "\n";
 }
