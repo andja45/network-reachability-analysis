@@ -1,5 +1,5 @@
-#ifndef NETWORKREACHABILITYANALYSIS_BFS_H
-#define NETWORKREACHABILITYANALYSIS_BFS_H
+#ifndef NETWORKANALYSISLAB_BFS_H
+#define NETWORKANALYSISLAB_BFS_H
 
 #include <unordered_map>
 #include "graph/Graph.h"

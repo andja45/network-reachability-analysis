@@ -8,7 +8,8 @@ int Graph::addNode(const std::string& label, NodeType type) {
     return id;
 }
 
-bool Graph::addEdge(int u, int v) {
+bool Graph::addEdge(int u, int v, float latency, float cost,
+                    float bandwidth, float load, float reliability) {
     if (!hasNode(u) || !hasNode(v) || u == v) return false;
 
     auto& uNeighbors = m_adjacentNodes[u];
@@ -18,9 +19,16 @@ bool Graph::addEdge(int u, int v) {
 
     uNeighbors.push_back(v);
     vNeighbors.push_back(u);
-    m_edges.push_back({std::min(u, v), std::max(u, v)});
+    m_edges.push_back({std::min(u, v), std::max(u, v), latency, cost, bandwidth, load, reliability});
 
     return true;
+}
+
+const Edge* Graph::findEdge(int u, int v) const {
+    int a = std::min(u, v), b = std::max(u, v);
+    for (const auto& e : m_edges)
+        if (e.from == a && e.to == b) return &e;
+    return nullptr;
 }
 
 bool Graph::removeEdge(int u, int v) {
