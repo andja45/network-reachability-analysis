@@ -9,7 +9,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-option(BUILD_GUI "Build the GUI application" OFF)
+option(BUILD_GUI "Build the GUI application" ON)
 
 add_subdirectory(core)
 if(BUILD_GUI)

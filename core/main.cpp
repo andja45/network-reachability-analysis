@@ -1,5 +1,5 @@
 #include "examples/GraphExamples.h"
-#include "reachability/Analyzer.h"
+#include "reachability/ReachabilityAnalyzer.h"
 #include <iostream>
 
 static std::string label(const Graph& g, int id) {
@@ -16,7 +16,7 @@ static void printEdgeList(const Graph& g, const std::vector<Edge>& edges) {
 }
 
 static void printReport(const std::string& name, const Graph& graph, int maxHops) {
-    AnalysisResult r = analyze(graph, maxHops);
+    ReachabilityResult r = analyze(graph, maxHops);
 
     std::cout << "\n***" << name << ": ***" << "\n";
 
@@ -58,9 +58,9 @@ static void printReport(const std::string& name, const Graph& graph, int maxHops
     }
 
     std::vector<Edge> crits, semis, redundants;
-    for (const auto& [e, c] : r.edgeCriticality) {
-        if (c == EdgeCriticality::Critical)     crits.push_back(e);
-        else if (c == EdgeCriticality::SemiCritical) semis.push_back(e);
+    for (const auto& [e, c] : r.connectionCriticality) {
+        if (c == ConnectionCriticality::Critical)     crits.push_back(e);
+        else if (c == ConnectionCriticality::SemiCritical) semis.push_back(e);
         else redundants.push_back(e);
     }
 
