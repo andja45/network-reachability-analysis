@@ -98,7 +98,7 @@ Graph makeDualISP() {
     g.addEdge(r7, r5, 3.0f, 4.0f, 10000.0f, 0.30f, 0.98f);
 
     g.addEdge(r2, r5, 2.0f, 12.0f, 5000.0f, 0.20f, 0.96f);
-    g.addEdge(r3, r7, 8.0f,  3.0f, 2000.0f, 0.10f, 0.98f);
+    g.addEdge(r3, r7, 0.5f,  3.0f, 2000.0f, 0.10f, 0.95f);
 
     g.addEdge(r4,  r8,  1.0f, 1.0f, 1000.0f, 0.00f, 0.999f);
     g.addEdge(r3,  r9,  1.0f, 1.0f, 1000.0f, 0.00f, 0.999f);
