@@ -7,6 +7,7 @@
 #include "routing/Metrics.h"
 #include <optional>
 
+enum class PanelMode { Reachability, Routing };
 enum class ViewMode { Neutral, BFS, Bridges, Routing, DCI };
 enum class AnimationState { Idle, Running, Done };
 enum class AlgoChoice { Dijkstra, AStar };
@@ -17,20 +18,20 @@ struct RoutingCanvasState {
     MetricChoice metric = MetricChoice::Fastest;
     RoutingResult result;
     DCIResult dciResult;
-
     AnimationState animationState = AnimationState::Idle;
     int animationStep = 0;
-
     bool packetPhase = false;
-    float packetT = 0.0f; // (0.0 to 1.0) progress along the current edge
-    int packetEdgeIdx = 0; // index of the edge in path the packet is on
+    float packetT = 0.0f;     // progress along current edge (0.0 to 1.0)
+    int packetEdgeIdx = 0;    // which edge in path the packet is on
 };
 
 struct AppState {
     Graph graph;
     ReachabilityResult result;
+    PanelMode panelMode = PanelMode::Reachability;
     ViewMode viewMode = ViewMode::Neutral;
     AnimationState animationState = AnimationState::Idle;
+    bool splitView = false;
 
     std::optional<NodeType> selectedType;
     int pendingEdgeFrom = -1;
@@ -43,6 +44,9 @@ struct AppState {
 
     int routingSrc = -1;
     int routingDst = -1;
+    bool pickingSource = false;
+    bool pickingDest = false;
+
     float pendingLatency = 1.0f;
     float pendingPrice = 1.0f;
     float pendingBandwidth = 1000.0f;
