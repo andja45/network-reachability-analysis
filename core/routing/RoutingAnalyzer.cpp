@@ -6,34 +6,28 @@ RoutingResult runRouting(const Graph& graph, int src, int dst, Metric metric, He
 }
 
 DCIResult computeDCI(const Graph& graph, int src, int dst, Metric metric, float maxDCI) {
-    float beforeCost = runDijkstra(graph, src, dst, metric).totalCost;
+    DijkstraResult beforeResult = runDijkstra(graph, src, dst, metric);
 
     DCIResult result;
-    for (const auto& edge : graph.edges()) {
+    if (!beforeResult.found) return result;
+
+    const auto& path = beforeResult.path;
+    for (int i = 0; i + 1 < (int)path.size(); ++i) {
+        const Edge* e = graph.findEdge(path[i], path[i+1]);
+
         Graph modified = graph;
-        modified.removeEdge(edge.from, edge.to);
+        modified.removeEdge(e->from, e->to);
 
-        DijkstraResult impactDCI = runDijkstra(modified, src, dst, metric);
+        DijkstraResult afterResult = runDijkstra(modified, src, dst, metric);
 
-        float ratio;
-        DetourCriticality dc;
-
-        if (!impactDCI.found) {
-            ratio = std::numeric_limits<float>::infinity();
-            dc = DetourCriticality::Bridge;
-        } else {
-            ratio = impactDCI.totalCost / beforeCost;
-            if (ratio > maxDCI)
-                dc = DetourCriticality::Critical;
-            else if (ratio > 1.0f)
-                dc = DetourCriticality::SemiCritical;
-            else
-                dc = DetourCriticality::Redundant;
-        }
-
-        result.dci[edge] = ratio;
-        result.detourCriticality[edge] = dc;
+        float ratio = afterResult.found ? afterResult.totalCost / beforeResult.totalCost
+                                : std::numeric_limits<float>::infinity();
+        DetourCriticality dc = !afterResult.found ? DetourCriticality::Bridge
+                             : ratio > maxDCI     ? DetourCriticality::Critical
+                             : ratio > 1.0f       ? DetourCriticality::SemiCritical
+                                                  : DetourCriticality::Redundant;
+        result.dci[*e] = ratio;
+        result.detourCriticality[*e] = dc;
     }
-
     return result;
 }
