@@ -16,28 +16,25 @@ static const ImVec2 LAYOUT_DUAL_ISP[] = {
     {690, 340}, {100, 460}, {260, 460}, {690, 440},
     {80, 550}, {260, 550}, {650, 550}, {740, 550}, {430, 550},
 };
+#include "AppTheme.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
 #include <cstdio>
 
-static constexpr ImVec4 RED = {0.86f, 0.23f, 0.23f, 1.0f};
-static constexpr ImVec4 ORANGE = {0.90f, 0.55f, 0.15f, 1.0f};
-static constexpr ImVec4 GREEN = {0.23f, 0.70f, 0.31f, 1.0f};
-
 App::App() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    m_window = glfwCreateWindow(1280, 720,"Network Reachability Analysis", nullptr, nullptr);
+    m_window = glfwCreateWindow(1280, 720,"Network Analysis Lab", nullptr, nullptr);
     glfwMakeContextCurrent(m_window);
     glfwSwapInterval(1);
 
     ImGui::CreateContext();
     ImGui::StyleColorsLight();
     auto& style = ImGui::GetStyle();
-    style.Colors[ImGuiCol_WindowBg]= {0.95f, 0.95f, 0.95f, 1.0f};
-    style.Colors[ImGuiCol_ChildBg]= {0.92f, 0.92f, 0.92f, 1.0f};
+    style.Colors[ImGuiCol_WindowBg] = AppTheme::BG_WINDOW;
+    style.Colors[ImGuiCol_ChildBg] = AppTheme::BG_PANEL;
     ImGui_ImplGlfw_InitForOpenGL(m_window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
@@ -66,7 +63,7 @@ void App::run() {
             m_state.timeSinceStep += io.DeltaTime;
             if (m_state.timeSinceStep >= m_state.stepDelay) {
                 m_state.timeSinceStep = 0.0f;
-                if (!m_renderer.step(m_state))
+                if (!m_renderer.step(m_state.animationStep))
                     m_state.animationState = AnimationState::Done;
             }
         }
@@ -76,7 +73,7 @@ void App::run() {
         ImGui::Begin("##root",nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
                                         ImGuiWindowFlags_NoMove     | ImGuiWindowFlags_NoBringToFrontOnFocus);
         ImGui::BeginChild("##left",   {200, 0}, true);  leftPanel();  ImGui::EndChild(); ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4{1.0f, 1.0f, 1.0f, 1.0f});
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, AppTheme::BG_CANVAS);
         ImGui::BeginChild("##canvas", {-220, 0}); canvas(); ImGui::EndChild();
         ImGui::PopStyleColor();
         ImGui::SameLine();
@@ -86,7 +83,7 @@ void App::run() {
         ImGui::Render();
         int w, h; glfwGetFramebufferSize(m_window, &w, &h);
         glViewport(0, 0, w, h);
-        glClearColor(0.95f, 0.95f, 0.95f, 1.0f);
+        glClearColor(AppTheme::BG_WINDOW.x, AppTheme::BG_WINDOW.y, AppTheme::BG_WINDOW.z, AppTheme::BG_WINDOW.w);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(m_window);
@@ -98,7 +95,7 @@ void App::leftPanel() {
     ImGui::Text("Node type");
     auto typeButton = [&](const char* name, NodeType type) {
         bool selected = m_state.selectedType == type;
-        if (selected) ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.15f, 0.35f, 0.65f, 1.0f});
+        if (selected) ImGui::PushStyleColor(ImGuiCol_Button, AppTheme::BTN_SELECTED);
         if (ImGui::Button(name, {-1, 0}))
             m_state.selectedType = selected ? std::optional<NodeType>{} : type;
         if (selected) ImGui::PopStyleColor();
@@ -163,7 +160,7 @@ void App::canvas() {
             m_state.result = ReachabilityResult{};
             m_state.viewMode = ViewMode::Neutral;
             m_state.animationState = AnimationState::Idle;
-            m_renderer.clear(m_state);
+            m_renderer.clear();
         }
     }
 
@@ -197,7 +194,7 @@ void App::canvas() {
 
     if (m_state.pendingEdgeFrom != -1) {
         ImVec2 p = m_renderer.nodePosition(m_state.pendingEdgeFrom);
-        dl->AddCircle({p.x + origin.x, p.y + origin.y}, 22.0f, IM_COL32(255, 255, 100, 200), 0, 2.0f);
+        dl->AddCircle({p.x + origin.x, p.y + origin.y}, 22.0f, AppTheme::PENDING_EDGE, 0, 2.0f);
     }
 }
 
@@ -214,14 +211,14 @@ void App::rightPanel() {
         ImGui::Text("BFS Results");  ImGui::Separator();
         ImGui::Text("Total: %d", r.totalHosts);
         ImGui::Text("Reachable: %d", r.reachableHosts);
-        ImGui::TextColored(RED,    "Unreachable: %d", (int)r.unreachableHosts.size());
+        ImGui::TextColored(AppTheme::TEXT_RED,    "Unreachable: %d", (int)r.unreachableHosts.size());
         if (m_state.maxHops != -1) // only when max hop is active
-            ImGui::TextColored(ORANGE, "Underserved: %d", (int)r.underservedHosts.size());
+            ImGui::TextColored(AppTheme::TEXT_ORANGE, "Underserved: %d", (int)r.underservedHosts.size());
         ImGui::Separator();
         for (int id : r.unreachableHosts)
-            ImGui::TextColored(RED,"  %s", label(id));
+            ImGui::TextColored(AppTheme::TEXT_RED,"  %s", label(id));
         for (int id : r.underservedHosts)
-            ImGui::TextColored(ORANGE,"  %s", label(id));
+            ImGui::TextColored(AppTheme::TEXT_ORANGE,"  %s", label(id));
         return;
     }
 
@@ -234,16 +231,16 @@ void App::rightPanel() {
     }
 
     ImGui::Text("Bridge Results - Connections"); ImGui::Separator();
-    ImGui::TextColored(RED,"Critical: %d", nCrit);
-    ImGui::TextColored(ORANGE,"Semi-critical: %d", nSemi);
-    ImGui::TextColored(GREEN,"Redundant: %d", nRedund);
+    ImGui::TextColored(AppTheme::TEXT_RED,"Critical: %d", nCrit);
+    ImGui::TextColored(AppTheme::TEXT_ORANGE,"Semi-critical: %d", nSemi);
+    ImGui::TextColored(AppTheme::TEXT_GREEN,"Redundant: %d", nRedund);
     ImGui::Separator();
 
     // list only critical and semi-critical connections
     for (const Edge& b : r.bridgeResult.bridges) {
         auto crit = r.connectionCriticality.at(b);
         bool isCrit = (crit == ConnectionCriticality::Critical);
-        ImGui::TextColored(isCrit ? RED : ORANGE, "  %s--%s [%s]",
+        ImGui::TextColored(isCrit ? AppTheme::TEXT_RED : AppTheme::TEXT_ORANGE, "  %s--%s [%s]",
             label(b.from), label(b.to), isCrit ? "CRIT" : "SEMI");
     }
 }

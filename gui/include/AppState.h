@@ -12,14 +12,14 @@ enum class AnimationState { Idle, Running, Done };
 enum class AlgoChoice { Dijkstra, AStar };
 enum class MetricChoice { Fastest, Cheapest, LeastLoaded, MostReliable, Balanced };
 
-struct RoutingPanelState {
+struct RoutingCanvasState {
     AlgoChoice algo = AlgoChoice::Dijkstra;
     MetricChoice metric = MetricChoice::Fastest;
     RoutingResult result;
     DCIResult dciResult;
 
-    AnimationState animState = AnimationState::Idle;
-    int animStep = 0;
+    AnimationState animationState = AnimationState::Idle;
+    int animationStep = 0;
 
     bool packetPhase = false;
     float packetT = 0.0f; // (0.0 to 1.0) progress along the current edge
@@ -49,8 +49,8 @@ struct AppState {
     float pendingLoad = 0.0f;
     float pendingReliability = 1.0f;
 
-    RoutingPanelState topPanel;
-    RoutingPanelState bottomPanel;
+    RoutingCanvasState topCanvas;
+    RoutingCanvasState bottomCanvas;
 
     void runAnalysis();
     void runRouting(Heuristic h);

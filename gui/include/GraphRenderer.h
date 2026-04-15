@@ -33,7 +33,9 @@ private:
     std::vector<std::vector<ColorChange>> m_animationSteps;
 
     void computeLayout(const AppState& state, ImVec2 canvasSize);
-    void resetColors(const AppState& state);
+    void rebuildProviderColors(const Graph& graph);
+    void resetColors();
+    void applyStep(int stepIdx);
     void drawNode(ImDrawList* dl, const NodeVisual& nv, const AppState& state) const;
     void drawEdge(ImDrawList* dl, const EdgeVisual& ev) const;
 public:
@@ -41,8 +43,11 @@ public:
     void draw(ImDrawList* drawList, ImVec2 canvasOrigin, ImVec2 canvasSize, const AppState& state);
     void buildBFSAnimation(const AppState& state);
     void buildBridgeAnimation(const AppState& state);
-    bool step(AppState& state); // returns false when the last step was just applied
-    void clear(const AppState& state);
+    void buildRoutingAnimation(const AppState& state, const RoutingCanvasState& canvas);
+    bool step(int& stepCounter);
+    void advancePacket(RoutingCanvasState& canvas, float dt, float speed);
+    void drawPacket(ImDrawList* dl, ImVec2 origin, const RoutingCanvasState& canvas);
+    void clear();
 
     void addNode(int id, ImVec2 pos);
     void addEdge(const Edge& e);

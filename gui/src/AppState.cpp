@@ -4,7 +4,7 @@ void AppState::runAnalysis() {
     result = analyze(graph, maxHops);
 }
 
-static Metric metricForPreset(MetricChoice p) {
+static Metric toMetric(MetricChoice p) {
     switch (p) {
         case MetricChoice::Fastest: return costFastest();
         case MetricChoice::Cheapest: return costCheapest();
@@ -15,23 +15,23 @@ static Metric metricForPreset(MetricChoice p) {
 }
 
 void AppState::runRouting(Heuristic h) {
-    topPanel.result = ::runRouting(graph, routingSrc, routingDst, metricForPreset(topPanel.metric), h);
-    bottomPanel.result = ::runRouting(graph, routingSrc, routingDst, metricForPreset(bottomPanel.metric), h);
-    topPanel.animState = AnimationState::Running;
-    topPanel.animStep = 0;
-    topPanel.packetPhase = false;
-    topPanel.packetT = 0.0f;
-    topPanel.packetEdgeIdx = 0;
-    bottomPanel.animState = AnimationState::Running;
-    bottomPanel.animStep = 0;
-    bottomPanel.packetPhase = false;
-    bottomPanel.packetT = 0.0f;
-    bottomPanel.packetEdgeIdx = 0;
+    topCanvas.result = ::runRouting(graph, routingSrc, routingDst, toMetric(topCanvas.metric), h);
+    bottomCanvas.result = ::runRouting(graph, routingSrc, routingDst, toMetric(bottomCanvas.metric), h);
+    topCanvas.animationState = AnimationState::Running;
+    topCanvas.animationStep = 0;
+    topCanvas.packetPhase = false;
+    topCanvas.packetT = 0.0f;
+    topCanvas.packetEdgeIdx = 0;
+    bottomCanvas.animationState = AnimationState::Running;
+    bottomCanvas.animationStep = 0;
+    bottomCanvas.packetPhase = false;
+    bottomCanvas.packetT = 0.0f;
+    bottomCanvas.packetEdgeIdx = 0;
     viewMode = ViewMode::Routing;
 }
 
 void AppState::runResilience() {
-    topPanel.dciResult = computeDCI(graph, routingSrc, routingDst, metricForPreset(topPanel.metric), 2.0f);
-    bottomPanel.dciResult = computeDCI(graph, routingSrc, routingDst, metricForPreset(bottomPanel.metric), 2.0f);
+    topCanvas.dciResult = computeDCI(graph, routingSrc, routingDst, toMetric(topCanvas.metric), 2.0f);
+    bottomCanvas.dciResult = computeDCI(graph, routingSrc, routingDst, toMetric(bottomCanvas.metric), 2.0f);
     viewMode = ViewMode::DCI;
 }
