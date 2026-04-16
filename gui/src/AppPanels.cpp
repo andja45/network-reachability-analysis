@@ -1,5 +1,6 @@
 #include "App.h"
 #include "AppTheme.h"
+#include "AppTooltips.h"
 #include "examples/GraphExamples.h"
 #include <cstdio>
 #include <string>
@@ -236,15 +237,7 @@ void App::canvas() {
         Edge hit = m_top.edgeAt(rel);
         if (hit.from != -1 && m_top.nodeAt(rel) == -1) {
             const Edge* e = m_state.graph.findEdge(hit.from, hit.to);
-            if (e) {
-                ImGui::BeginTooltip();
-                ImGui::Text("Latency:     %.1f ms", e->latency);
-                ImGui::Text("Price:       %.1f", e->price);
-                ImGui::Text("Bandwidth:   %.0f Mbps", e->bandwidth);
-                ImGui::Text("Load:        %.2f", e->load);
-                ImGui::Text("Reliability: %.2f", e->reliability);
-                ImGui::EndTooltip();
-            }
+            if (e) Tooltips::edge(*e);
         }
     }
 
@@ -272,7 +265,7 @@ void App::rightPanel() {
     }
     const auto& r = m_state.result;
     if (m_state.viewMode == ViewMode::BFS) {
-        ImGui::Text("BFS Results"); ImGui::Separator();
+        ImGui::Text("BFS Results"); Tooltips::bfs(); ImGui::Separator();
         ImGui::Text("Total: %d", r.totalHosts);
         ImGui::Text("Reachable: %d", r.reachableHosts);
         ImGui::TextColored(AppTheme::TEXT_RED, "Unreachable: %d", (int)r.unreachableHosts.size());
@@ -289,7 +282,7 @@ void App::rightPanel() {
             if (c == ConnectionCriticality::Critical) ++nCrit;
             else if (c == ConnectionCriticality::SemiCritical) ++nSemi;
         }
-        ImGui::Text("Bridge Results"); ImGui::Separator();
+        ImGui::Text("Bridge Results"); Tooltips::bridge(); ImGui::Separator();
         ImGui::TextColored(AppTheme::TEXT_RED, "Critical: %d", nCrit);
         ImGui::TextColored(AppTheme::TEXT_ORANGE, "Semi-critical: %d", nSemi);
         ImGui::TextColored(AppTheme::TEXT_GREEN, "Redundant: %d", (int)r.connectionCriticality.size() - nCrit - nSemi);
@@ -316,7 +309,7 @@ void App::rightPanel() {
         ImGui::Text("Relaxations: %d", res.relaxations);
         ImGui::Text("Visited:     %d", res.visited);
         if (!c.dciResult.detourCriticality.empty()) {
-            ImGui::SeparatorText("DCI");
+            ImGui::Text("DCI"); Tooltips::dci(); ImGui::Separator();
             for (const auto& [e, dc] : c.dciResult.detourCriticality) {
                 float ratio = c.dciResult.dci.at(e);
                 char buf[16]; std::snprintf(buf, 16, std::isinf(ratio) ? "inf" : "%.2f", ratio);
